@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Productos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+        }
+
+        .form-group input,
+        .form-group button {
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #resultados {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Producto</h2>
+    <!-- Formulario para POST y PUT -->
+    <div class="form-group">
+        <label for="codigo">Código (Para actualizar)</label>
+        <input type="text" id="codigo" name="codigo" placeholder="Dejar en blanco para agregar nuevo">
+    </div>
+    <div class="form-group">
+        <label for="descripcion">Descripción</label>
+        <input type="text" id="descripcion" name="descripcion">
+    </div>
+    <div class="form-group">
+        <label for="cantidad">Cantidad</label>
+        <input type="number" id="cantidad" name="cantidad">
+    </div>
+    <div class="form-group">
+        <label for="costo">Costo</label>
+        <input type="text" id="costo" name="costo">
+    </div>
+    <button onclick="postProducto()">Agregar Producto</button>
+    <button onclick="putProducto()">Actualizar Producto</button>
+    <button onclick="getProductos()">Mostrar Productos</button>
+
+    <div id="resultados"></div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        function getProductos() {
+            $.ajax({
+                url: 'http://localhost:3000/productos',
+                type: 'GET',
+                success: function (data) {
+                    let html = data.map(producto =>
+                        `Código: ${producto.codigo}, Descripción: ${producto.descripcion}, Cantidad: ${producto.cantidad}, Costo: ${producto.costo}<br>`
+                    ).join('');
+                    document.getElementById('resultados').innerHTML = html;
+                }
+            });
+        }
+
+        function postProducto() {
+            $.ajax({
+                url: 'http://localhost:3000/productos',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    descripcion: document.getElementById('descripcion').value,
+                    cantidad: document.getElementById('cantidad').value,
+                    costo: document.getElementById('costo').value
+                }),
+                success: function (response) {
+                    alert('Producto agregado');
+                    getProductos();
+                }
+            });
+        }
+
+        function putProducto() {
+            const codigo = document.getElementById('codigo').value;
+            if (!codigo) {
+                alert('Por favor, ingrese el código del producto a actualizar.');
+                return;
+            }
+            $.ajax({
+                url: `http://localhost:3000/productos/${codigo}`,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    descripcion: document.getElementById('descripcion').value,
+                    cantidad: document.getElementById('cantidad').value,
+                    costo: document.getElementById('costo').value
+                }),
+                success: function (response) {
+                    alert('Producto actualizado');
+                    getProductos();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
